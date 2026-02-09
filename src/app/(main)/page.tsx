@@ -4,6 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { db } from '@/lib/db';
 import { getTrendingRestaurants } from '@/lib/recommendations/engine';
 
+export const dynamic = 'force-dynamic';
+
 export default async function HomePage() {
   const trending = await getTrendingRestaurants(6);
 

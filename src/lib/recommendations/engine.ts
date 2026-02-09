@@ -197,14 +197,19 @@ async function getContentBasedRecommendations(
       }
 
       // Shared features
-      const sharedFeatures = restaurant.features.filter((f: string) =>
-        liked.features.includes(f)
-      ).length;
-      score += sharedFeatures * 0.3;
+      if (restaurant.features && liked.features) {
+        const likedFeatures = liked.features;
+        const sharedFeatures = restaurant.features.filter((f: string) =>
+          likedFeatures.includes(f)
+        ).length;
+        score += sharedFeatures * 0.3;
+      }
     }
 
     // Rating boost
-    score += (restaurant.rating / 5.0) * 1.0;
+    if (restaurant.rating) {
+      score += (restaurant.rating / 5.0) * 1.0;
+    }
 
     if (score > 0) {
       scores.set(restaurant.id, score);
@@ -296,14 +301,19 @@ export async function getSimilarRestaurants(
     }
 
     // Shared features
-    const sharedFeatures = r.features.filter((f: string) =>
-      restaurant.features.includes(f)
-    ).length;
-    score += sharedFeatures * 0.5;
+    if (r.features && restaurant.features) {
+      const restaurantFeatures = restaurant.features;
+      const sharedFeatures = r.features.filter((f: string) =>
+        restaurantFeatures.includes(f)
+      ).length;
+      score += sharedFeatures * 0.5;
+    }
 
     // Similar rating
-    const ratingDiff = Math.abs(r.rating - restaurant.rating);
-    score += (1 - ratingDiff / 5) * 1.0;
+    if (r.rating && restaurant.rating) {
+      const ratingDiff = Math.abs(r.rating - restaurant.rating);
+      score += (1 - ratingDiff / 5) * 1.0;
+    }
 
     return { restaurant: r, score };
   });

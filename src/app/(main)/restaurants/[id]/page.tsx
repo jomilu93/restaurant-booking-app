@@ -6,9 +6,12 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 
-export default async function RestaurantDetailPage({ params }: { params: { id: string } }) {
+export const dynamic = 'force-dynamic';
+
+export default async function RestaurantDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const restaurant = await db.query.restaurants.findFirst({
-    where: eq(restaurants.id, params.id),
+    where: eq(restaurants.id, id),
   });
 
   if (!restaurant) {
@@ -21,7 +24,7 @@ export default async function RestaurantDetailPage({ params }: { params: { id: s
 
   const availability = await db.query.availabilitySlots.findMany({
     where: and(
-      eq(availabilitySlots.restaurantId, params.id),
+      eq(availabilitySlots.restaurantId, id),
       gte(availabilitySlots.date, today),
       eq(availabilitySlots.available, true)
     ),
@@ -80,23 +83,25 @@ export default async function RestaurantDetailPage({ params }: { params: { id: s
             </CardContent>
           </Card>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Features</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="flex flex-wrap gap-2">
-                {restaurant.features.map((feature, index) => (
-                  <span
-                    key={index}
-                    className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm"
-                  >
-                    {feature}
-                  </span>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          {restaurant.features && restaurant.features.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>Features</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex flex-wrap gap-2">
+                  {restaurant.features.map((feature, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-secondary text-secondary-foreground rounded-full text-sm"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <Card>

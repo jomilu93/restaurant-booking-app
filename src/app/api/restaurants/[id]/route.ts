@@ -5,11 +5,12 @@ import { eq } from 'drizzle-orm';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const restaurant = await db.query.restaurants.findFirst({
-      where: eq(restaurants.id, params.id),
+      where: eq(restaurants.id, id),
     });
 
     if (!restaurant) {
@@ -21,7 +22,7 @@ export async function GET(
 
     // Get reviews
     const restaurantReviews = await db.query.reviews.findMany({
-      where: eq(reviews.restaurantId, params.id),
+      where: eq(reviews.restaurantId, id),
       with: {
         user: {
           columns: {
